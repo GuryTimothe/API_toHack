@@ -23,7 +23,7 @@ function requireWriteAccess(req, res, next) {
     next();
   } catch (err) {
     console.error("Erreur JWT : ", err.message);
-    return res.status(401).json({ message: "Accès interdit, ntm de là mtn" });
+    return res.status(401).json({ message: "Accès interdit." });
   }
 }
 

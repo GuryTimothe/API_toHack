@@ -1,21 +1,21 @@
-const dbMonsters = require('../../proxy/db_monsters');
+const dbUsers = require('../../proxy/db_users');
 const { baseUrl } = require('../../app');
 
 /**
  * @openapi
- * /monsters/{id}:
+ * /users/{id}:
  *   get:
- *     summary: Récupère un monstre par son ID
+ *     summary: Récupère un utilisateur par son ID
  *     parameters:
  *       - in: path
  *         name: id
  *         schema:
  *           type: integer
  *         required: true
- *         description: ID du monstre
+ *         description: ID de l'utilisateur
  *     responses:
  *       200:
- *         description: Monstre trouvé
+ *         description: Utilisateur trouvé
  *         content:
  *           application/json:
  *             schema:
@@ -23,27 +23,27 @@ const { baseUrl } = require('../../app');
  *               properties:
  *                 id:
  *                   type: integer
- *                 name:
+ *                 username:
  *                   type: string
- *                 type:
+ *                 password:
  *                   type: string
  *       404:
- *         description: Monstre non trouvé
+ *         description: Utilisateur non trouvé
  */
 
 module.exports = async (req, res) => {
   const id = parseInt(req.params.id);
-  const monster = await dbMonsters.getById(id);
+  const user = await dbUsers.getById(id);
 
-  if (!monster) {
-    return res.status(404).json({ message: "Monstre non trouvé." });
+  if (!user) {
+    return res.status(404).json({ message: "Utilisateur non trouvé." });
   }
 
   const response = {
-    ...monster,
+    ...user,
     _links: {
-      self: `${baseUrl}/monsters/${id}`,
-      collection: `${baseUrl}/monsters`
+      self: `${baseUrl}/users/${id}`,
+      collection: `${baseUrl}/users`
     }
   };
 

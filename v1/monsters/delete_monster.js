@@ -28,7 +28,7 @@ module.exports = async (req, res) => {
   const deleted = await dbMonsters.delete(id);
 
   if (!deleted) {
-    return res.status(404).json({ message: "Ce monstre existe pas, va pas trop vite frérot." });
+    return res.status(404).json({ message: "Ce monstre n'existe pas" });
   }
 
   res.status(204).send();

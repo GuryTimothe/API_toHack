@@ -1,11 +1,10 @@
-const dbMonsters = require('../../proxy/db_monsters');
-const { baseUrl } = require('../../app');
+const dbUsers = require('../../proxy/db_users');
 
 /**
  * @openapi
- * /monsters:
+ * /users:
  *   post:
- *     summary: Crée un nouveau monstre
+ *     summary: Crée un nouvel utilisateur
  *     security:
  *       - bearerAuth: []   # JWT requis
  *     requestBody:
@@ -15,16 +14,16 @@ const { baseUrl } = require('../../app');
  *           schema:
  *             type: object
  *             required:
- *               - name
- *               - type
+ *               - username
+ *               - password
  *             properties:
- *               name:
+ *               username:
  *                 type: string
- *               type:
+ *               password:
  *                 type: string
  *     responses:
  *       201:
- *         description: Monstre créé avec succès
+ *         description: Utilisateur créé avec succès
  *         content:
  *           application/json:
  *             schema:
@@ -32,31 +31,32 @@ const { baseUrl } = require('../../app');
  *               properties:
  *                 id:
  *                   type: integer
- *                 name:
+ *                 username:
  *                   type: string
- *                 type:
+ *                 password:
  *                   type: string
  *       400:
- *         description: Nom ou type manquant
+ *         description: Nom ou mot de passe manquant
  *       401:
  *         description: JWT manquant ou invalide
  */
+
 
 module.exports = async (req, res) => {
   const { name, type } = req.body;
 
   if (!name || !type) {
     return res.status(400).json({
-      message: "Nom et type sont requis."
+      message: "Le nom et  le mot de passe sont requis."
     });
   }
 
-  const newMonster = await dbMonsters.add({ name, type });
+  const newUser = await dbUsers.add({ username, password });
   const response = {
-    ...newMonster,
+    ...newUser,
     _links: {
-      self: `${baseUrl}/monsters/${newMonster.id}`,
-      collection: `${baseUrl}/monsters`
+      self: `${baseUrl}/users/${newMonster.id}`,
+      collection: `${baseUrl}/users`
     }
   };
 

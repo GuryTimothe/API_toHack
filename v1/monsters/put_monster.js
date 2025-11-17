@@ -40,7 +40,7 @@ module.exports = async (req, res) => {
   const updatedMonster = await dbMonsters.update(id, req.body);
 
   if (!updatedMonster) {
-    return res.status(404).json({ message: "Impossible de modifier, ce monstre n'existe pas mon reuf." });
+    return res.status(404).json({ message: "Impossible de modifier, ce monstre n'existe pas." });
   }
 
   const response = {
