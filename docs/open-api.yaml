@@ -12,7 +12,7 @@ servers:
     description: Serveur de développement v1
 
 paths:
-  /books:
+  /monsters:
     get:
       summary: "[v1] Récupérer la liste des monstres paginée"
       description: Retourne une liste paginée de tous les monstres disponibles
@@ -40,15 +40,15 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaginatedBooksWithLinks'
+                $ref: '#/components/schemas/PaginatedMonstersWithLinks'
         '400':
           $ref: '#/components/responses/BadRequest'
         '500':
           $ref: '#/components/responses/InternalServerError'
 
     post:
-      summary: "[v1] Créer un nouveau livre"
-      description: Ajoute un nouveau livre à la bibliothèque (authentification requise)
+      summary: "[v1] Créer un nouveau monstre"
+      description: Ajoute un nouveau monstre à la bibliothèque (authentification requise)
       security:
         - bearerAuth: []
       requestBody:
@@ -56,20 +56,20 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/BookInput'
+              $ref: '#/components/schemas/MonsterInput'
             examples:
               example1:
-                summary: Exemple de création de livre
+                summary: Exemple de création de monstre
                 value:
-                  title: "La liste de Schindler"
-                  author: "Thomas Kenealy"
+                  name: "Nargacuga"
+                  type: "Wyverne volante"
       responses:
         '201':
-          description: Livre créé avec succès
+          description: monstre créé avec succès
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BookWithLinks'
+                $ref: '#/components/schemas/MonsterWithLinks'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -79,40 +79,40 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
-  /books/{id}:
+  /monsters/{id}:
     get:
-      summary: "[v1] Récupérer un livre par son ID"
-      description: Retourne les détails d'un livre spécifique
+      summary: "[v1] Récupérer un monstre par son ID"
+      description: Retourne les détails d'un monstre spécifique
       parameters:
         - name: id
           in: path
           required: true
-          description: ID du livre
+          description: ID du monstre
           schema:
             type: integer
             example: 1
       responses:
         '200':
-          description: Livre trouvé
+          description: monstre trouvé
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BookWithLinks'
+                $ref: '#/components/schemas/MonsterWithLinks'
         '404':
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
 
     put:
-      summary: "[v1] Mettre à jour un livre"
-      description: Met à jour les informations d'un livre existant (authentification requise)
+      summary: "[v1] Mettre à jour un monstre"
+      description: Met à jour les informations d'un monstre existant (authentification requise)
       security:
         - bearerAuth: []
       parameters:
         - name: id
           in: path
           required: true
-          description: ID du livre à mettre à jour
+          description: ID du monstre à mettre à jour
           schema:
             type: integer
             example: 1
@@ -121,20 +121,20 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/BookInput'
+              $ref: '#/components/schemas/MonsterInput'
             examples:
               example1:
                 summary: Exemple de mise à jour
                 value:
-                  title: "Titre mis à jour"
-                  author: "Auteur mis à jour"
+                  name: "Rathalos"
+                  type: "Wyverne volante"
       responses:
         '200':
-          description: Livre mis à jour avec succès
+          description: monstre mis à jour avec succès
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BookWithLinks'
+                $ref: '#/components/schemas/MonsterWithLinks'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -147,21 +147,21 @@ paths:
           $ref: '#/components/responses/InternalServerError'
 
     delete:
-      summary: "[v1] Supprimer un livre"
-      description: Supprime un livre de la bibliothèque (authentification requise)
+      summary: "[v1] Supprimer un monstre"
+      description: Supprime un monstre de la bibliothèque (authentification requise)
       security:
         - bearerAuth: []
       parameters:
         - name: id
           in: path
           required: true
-          description: ID du livre à supprimer
+          description: ID du monstre à supprimer
           schema:
             type: integer
             example: 1
       responses:
         '200':
-          description: Livre supprimé avec succès
+          description: monstre supprimé avec succès
           content:
             application/json:
               schema:
@@ -169,9 +169,9 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: "Livre supprimé avec succès"
+                    example: "monstre supprimé avec succès"
                   deleted:
-                    $ref: '#/components/schemas/BookWithLinks'
+                    $ref: '#/components/schemas/MonsterWithLinks'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
@@ -183,50 +183,46 @@ paths:
 
 components:
   schemas:
-    Book:
+    Monster:
       type: object
       required:
         - id
-        - title
-        - author
+        - name
+        - type
       properties:
         id:
           type: integer
-          description: Identifiant unique du livre
+          description: Identifiant unique du monstre
           example: 1
-        title:
+        name:
           type: string
-          description: Titre du livre
-          example: "La Ligne Verte"
-        author:
+          description: Nom du monstre
+          example: "Rathalos"
+        type:
           type: string
-          description: Auteur du livre
-          example: "Stephen King"
-      example:
-        id: 1
-        title: "La Ligne Verte"
-        author: "Stephen King"
+          description: Type du monstre
+          example: "Wyverne volante"
 
-    BookInput:
+    MonsterInput:
       type: object
       required:
-        - title
-        - author
+        - name
+        - type
       properties:
-        title:
+        name:
           type: string
-          description: Titre du livre
-          example: "Nouveau Livre"
+          description: Nom du monstre
+          example: "Nargacuga"
           minLength: 1
           maxLength: 255
-        author:
+        type:
           type: string
-          description: Auteur du livre
-          example: "Nouvel Auteur"
+          description: Type du monstre
+          example: "Wyverne volante"
           minLength: 1
           maxLength: 255
 
-    PaginatedBooks:
+    PaginatedMonsters:
       type: object
       properties:
         page:
@@ -237,16 +233,15 @@ components:
           example: 10
         totalItems:
           type: integer
-          example: 25
+          example: 34
         totalPages:
           type: integer
-          example: 3
+          example: 4
         data:
           type: array
           items:
-            $ref: '#/components/schemas/Book'
+            $ref: '#/components/schemas/Monster'
 
-    # ✅ CORRECTION : Bonne indentation pour les schémas HATEOAS
     HateoasLinks:
       type: object
       properties:
@@ -275,24 +270,24 @@ components:
         href:
           type: string
           format: uri
-          example: "http://localhost:3000/api/v1/books/1"
+          example: "http://localhost:3000/api/v1/monsters/1"
         method:
           type: string
           enum: [GET, POST, PUT, DELETE]
           example: "GET"
         description:
           type: string
-          example: "Obtenir ce livre"
+          example: "Obtenir ce monstre"
 
-    BookWithLinks:
+    MonsterWithLinks:
       allOf:
-        - $ref: '#/components/schemas/Book'
+        - $ref: '#/components/schemas/Monster'
         - type: object
           properties:
             _links:
               $ref: '#/components/schemas/HateoasLinks'
 
-    PaginatedBooksWithLinks:
+    PaginatedMonstersWithLinks:
       type: object
       properties:
         page:
@@ -303,14 +298,14 @@ components:
           example: 10
         totalItems:
           type: integer
-          example: 25
+          example: 34
         totalPages:
           type: integer
-          example: 3
+          example: 4
         data:
           type: array
           items:
-            $ref: '#/components/schemas/BookWithLinks'
+            $ref: '#/components/schemas/MonsterWithLinks'
         _links:
           $ref: '#/components/schemas/HateoasLinks'
 
@@ -332,7 +327,7 @@ components:
           schema:
             $ref: '#/components/schemas/Error'
           example:
-            message: "Titre et auteur sont requis."
+            message: "name et type sont requis."
 
     Unauthorized:
       description: Authentification requise
@@ -359,7 +354,7 @@ components:
           schema:
             $ref: '#/components/schemas/Error'
           example:
-            message: "Livre non trouvé"
+            message: "monstre non trouvé"
 
     InternalServerError:
       description: Erreur interne du serveur

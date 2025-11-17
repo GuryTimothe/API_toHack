@@ -17,7 +17,7 @@ const swaggerOptions = {
       },
     ],
   },
-  apis: ["./monsters/*.js"],
+  apis: ["../v1/monsters/*.js"],
 };
 
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
