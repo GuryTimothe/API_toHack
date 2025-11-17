@@ -1,0 +1,383 @@
+openapi: 3.0.3
+info:
+  title: API Monster Hunter
+  description: API Monster Hunter
+  version: 1.0.0
+  contact:
+    name: Support API
+    email: support@example.com
+
+servers:
+  - url: http://localhost:3000/api/v1
+    description: Serveur de développement v1
+
+paths:
+  /books:
+    get:
+      summary: "[v1] Récupérer la liste des monstres paginée"
+      description: Retourne une liste paginée de tous les monstres disponibles
+      parameters:
+        - name: page
+          in: query
+          description: Numéro de page (défaut 1)
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          description: Nombre d'éléments par page (défaut 10)
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+      responses:
+        '200':
+          description: Liste des monstres récupérée avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedBooksWithLinks'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      summary: "[v1] Créer un nouveau livre"
+      description: Ajoute un nouveau livre à la bibliothèque (authentification requise)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookInput'
+            examples:
+              example1:
+                summary: Exemple de création de livre
+                value:
+                  title: "La liste de Schindler"
+                  author: "Thomas Kenealy"
+      responses:
+        '201':
+          description: Livre créé avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookWithLinks'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /books/{id}:
+    get:
+      summary: "[v1] Récupérer un livre par son ID"
+      description: Retourne les détails d'un livre spécifique
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID du livre
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Livre trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookWithLinks'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    put:
+      summary: "[v1] Mettre à jour un livre"
+      description: Met à jour les informations d'un livre existant (authentification requise)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID du livre à mettre à jour
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookInput'
+            examples:
+              example1:
+                summary: Exemple de mise à jour
+                value:
+                  title: "Titre mis à jour"
+                  author: "Auteur mis à jour"
+      responses:
+        '200':
+          description: Livre mis à jour avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookWithLinks'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    delete:
+      summary: "[v1] Supprimer un livre"
+      description: Supprime un livre de la bibliothèque (authentification requise)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID du livre à supprimer
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Livre supprimé avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Livre supprimé avec succès"
+                  deleted:
+                    $ref: '#/components/schemas/BookWithLinks'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  schemas:
+    Book:
+      type: object
+      required:
+        - id
+        - title
+        - author
+      properties:
+        id:
+          type: integer
+          description: Identifiant unique du livre
+          example: 1
+        title:
+          type: string
+          description: Titre du livre
+          example: "La Ligne Verte"
+        author:
+          type: string
+          description: Auteur du livre
+          example: "Stephen King"
+      example:
+        id: 1
+        title: "La Ligne Verte"
+        author: "Stephen King"
+
+    BookInput:
+      type: object
+      required:
+        - title
+        - author
+      properties:
+        title:
+          type: string
+          description: Titre du livre
+          example: "Nouveau Livre"
+          minLength: 1
+          maxLength: 255
+        author:
+          type: string
+          description: Auteur du livre
+          example: "Nouvel Auteur"
+          minLength: 1
+          maxLength: 255
+
+    PaginatedBooks:
+      type: object
+      properties:
+        page:
+          type: integer
+          example: 1
+        limit:
+          type: integer
+          example: 10
+        totalItems:
+          type: integer
+          example: 25
+        totalPages:
+          type: integer
+          example: 3
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Book'
+
+    # ✅ CORRECTION : Bonne indentation pour les schémas HATEOAS
+    HateoasLinks:
+      type: object
+      properties:
+        self:
+          $ref: '#/components/schemas/Link'
+        collection:
+          $ref: '#/components/schemas/Link'
+        update:
+          $ref: '#/components/schemas/Link'
+        delete:
+          $ref: '#/components/schemas/Link'
+        first:
+          $ref: '#/components/schemas/Link'
+        last:
+          $ref: '#/components/schemas/Link'
+        prev:
+          $ref: '#/components/schemas/Link'
+        next:
+          $ref: '#/components/schemas/Link'
+        create:
+          $ref: '#/components/schemas/Link'
+
+    Link:
+      type: object
+      properties:
+        href:
+          type: string
+          format: uri
+          example: "http://localhost:3000/api/v1/books/1"
+        method:
+          type: string
+          enum: [GET, POST, PUT, DELETE]
+          example: "GET"
+        description:
+          type: string
+          example: "Obtenir ce livre"
+
+    BookWithLinks:
+      allOf:
+        - $ref: '#/components/schemas/Book'
+        - type: object
+          properties:
+            _links:
+              $ref: '#/components/schemas/HateoasLinks'
+
+    PaginatedBooksWithLinks:
+      type: object
+      properties:
+        page:
+          type: integer
+          example: 1
+        limit:
+          type: integer
+          example: 10
+        totalItems:
+          type: integer
+          example: 25
+        totalPages:
+          type: integer
+          example: 3
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/BookWithLinks'
+        _links:
+          $ref: '#/components/schemas/HateoasLinks'
+
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Message d'erreur
+        error:
+          type: string
+          description: Détail technique de l'erreur (optionnel)
+
+  responses:
+    BadRequest:
+      description: Requête invalide
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            message: "Titre et auteur sont requis."
+
+    Unauthorized:
+      description: Authentification requise
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            message: "Token d'authentification manquant"
+
+    Forbidden:
+      description: Permissions insuffisantes
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            message: "Accès refusé. Droits administrateur requis."
+
+    NotFound:
+      description: Ressource non trouvée
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            message: "Livre non trouvé"
+
+    InternalServerError:
+      description: Erreur interne du serveur
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            message: "Erreur serveur interne"
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        JWT token obtenu après authentification.
+        Format: "Bearer {token}"
+
+security:
+  - bearerAuth: []
