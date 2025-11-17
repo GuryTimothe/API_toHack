@@ -57,15 +57,9 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/MonsterInput'
-            examples:
-              example1:
-                summary: Exemple de création de monstre
-                value:
-                  name: "Nargacuga"
-                  type: "Wyverne volante"
       responses:
         '201':
-          description: monstre créé avec succès
+          description: Monstre créé
           content:
             application/json:
               schema:
@@ -82,18 +76,16 @@ paths:
   /monsters/{id}:
     get:
       summary: "[v1] Récupérer un monstre par son ID"
-      description: Retourne les détails d'un monstre spécifique
       parameters:
         - name: id
           in: path
           required: true
-          description: ID du monstre
           schema:
             type: integer
             example: 1
       responses:
         '200':
-          description: monstre trouvé
+          description: Monstre trouvé
           content:
             application/json:
               schema:
@@ -105,14 +97,12 @@ paths:
 
     put:
       summary: "[v1] Mettre à jour un monstre"
-      description: Met à jour les informations d'un monstre existant (authentification requise)
       security:
         - bearerAuth: []
       parameters:
         - name: id
           in: path
           required: true
-          description: ID du monstre à mettre à jour
           schema:
             type: integer
             example: 1
@@ -122,25 +112,15 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/MonsterInput'
-            examples:
-              example1:
-                summary: Exemple de mise à jour
-                value:
-                  name: "Rathalos"
-                  type: "Wyverne volante"
       responses:
         '200':
-          description: monstre mis à jour avec succès
+          description: Monstre mis à jour
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/MonsterWithLinks'
         '400':
           $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
         '500':
@@ -148,38 +128,93 @@ paths:
 
     delete:
       summary: "[v1] Supprimer un monstre"
-      description: Supprime un monstre de la bibliothèque (authentification requise)
       security:
         - bearerAuth: []
       parameters:
         - name: id
           in: path
           required: true
-          description: ID du monstre à supprimer
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '204':
+          description: Monstre supprimé avec succès
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /users:
+    post:
+      summary: "[v1] Créer un nouvel utilisateur"
+      description: Ajoute un nouvel utilisateur à la base de données
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserInput'
+      responses:
+        '201':
+          description: Utilisateur créé avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserWithLinks'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /users/{id}:
+    get:
+      summary: "[v1] Récupérer un utilisateur par ID"
+      parameters:
+        - name: id
+          in: path
+          required: true
           schema:
             type: integer
             example: 1
       responses:
         '200':
-          description: monstre supprimé avec succès
+          description: Utilisateur trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserWithLinks'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /login:
+    post:
+      summary: "[v1] Authentification utilisateur"
+      description: Authentifie un utilisateur et retourne ses données
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserInput'
+      responses:
+        '200':
+          description: Connexion réussie
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  message:
-                    type: string
-                    example: "monstre supprimé avec succès"
-                  deleted:
-                    $ref: '#/components/schemas/MonsterWithLinks'
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/UserWithLinks'
+        '400':
+          $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
 
 components:
   schemas:
@@ -192,15 +227,12 @@ components:
       properties:
         id:
           type: integer
-          description: Identifiant unique du monstre
           example: 1
         name:
           type: string
-          description: Nom du monstre
           example: "Rathalos"
         type:
           type: string
-          description: Type du monstre
           example: "Wyverne volante"
 
     MonsterInput:
@@ -211,36 +243,79 @@ components:
       properties:
         name:
           type: string
-          description: Nom du monstre
-          example: "Nargacuga"
-          minLength: 1
-          maxLength: 255
         type:
           type: string
-          description: Type du monstre
-          example: "Wyverne volante"
-          minLength: 1
-          maxLength: 255
 
-    PaginatedMonsters:
+    MonsterWithLinks:
+      allOf:
+        - $ref: '#/components/schemas/Monster'
+        - type: object
+          properties:
+            _links:
+              $ref: '#/components/schemas/HateoasLinks'
+
+    PaginatedMonstersWithLinks:
       type: object
       properties:
         page:
           type: integer
-          example: 1
         limit:
           type: integer
-          example: 10
-        totalItems:
+        totalMonsters:
           type: integer
-          example: 34
         totalPages:
           type: integer
-          example: 4
         data:
           type: array
           items:
-            $ref: '#/components/schemas/Monster'
+            $ref: '#/components/schemas/MonsterWithLinks'
+        _links:
+          $ref: '#/components/schemas/HateoasLinks'
+
+    User:
+      type: object
+      required:
+        - id
+        - username
+        - password
+      properties:
+        id:
+          type: integer
+          example: 1
+        username:
+          type: string
+          example: "NouvelUser"
+        password:
+          type: string
+          example: "MotDePasse123"
+
+    UserInput:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+
+    UserWithLinks:
+      allOf:
+        - $ref: '#/components/schemas/User'
+        - type: object
+          properties:
+            _links:
+              type: object
+              properties:
+                self:
+                  type: string
+                  format: uri
+                  example: "http://localhost:3000/api/v1/users/1"
+                collection:
+                  type: string
+                  format: uri
+                  example: "http://localhost:3000/api/v1/users"
 
     HateoasLinks:
       type: object
@@ -270,54 +345,19 @@ components:
         href:
           type: string
           format: uri
-          example: "http://localhost:3000/api/v1/monsters/1"
         method:
           type: string
           enum: [GET, POST, PUT, DELETE]
-          example: "GET"
         description:
           type: string
-          example: "Obtenir ce monstre"
-
-    MonsterWithLinks:
-      allOf:
-        - $ref: '#/components/schemas/Monster'
-        - type: object
-          properties:
-            _links:
-              $ref: '#/components/schemas/HateoasLinks'
-
-    PaginatedMonstersWithLinks:
-      type: object
-      properties:
-        page:
-          type: integer
-          example: 1
-        limit:
-          type: integer
-          example: 10
-        totalItems:
-          type: integer
-          example: 34
-        totalPages:
-          type: integer
-          example: 4
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/MonsterWithLinks'
-        _links:
-          $ref: '#/components/schemas/HateoasLinks'
 
     Error:
       type: object
       properties:
         message:
           type: string
-          description: Message d'erreur
         error:
           type: string
-          description: Détail technique de l'erreur (optionnel)
 
   responses:
     BadRequest:
@@ -326,8 +366,6 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-          example:
-            message: "name et type sont requis."
 
     Unauthorized:
       description: Authentification requise
@@ -335,17 +373,6 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-          example:
-            message: "Token d'authentification manquant"
-
-    Forbidden:
-      description: Permissions insuffisantes
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            message: "Accès refusé. Droits administrateur requis."
 
     NotFound:
       description: Ressource non trouvée
@@ -353,26 +380,16 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-          example:
-            message: "monstre non trouvé"
 
     InternalServerError:
-      description: Erreur interne du serveur
+      description: Erreur serveur interne
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-          example:
-            message: "Erreur serveur interne"
 
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
-      description: |
-        JWT token obtenu après authentification.
-        Format: "Bearer {token}"
-
-security:
-  - bearerAuth: []

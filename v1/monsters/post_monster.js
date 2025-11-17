@@ -1,47 +1,6 @@
 const dbMonsters = require('../../proxy/db_monsters');
 const { baseUrl } = require('../../app');
 
-/**
- * @openapi
- * /monsters:
- *   post:
- *     summary: Crée un nouveau monstre
- *     security:
- *       - bearerAuth: []   # JWT requis
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - name
- *               - type
- *             properties:
- *               name:
- *                 type: string
- *               type:
- *                 type: string
- *     responses:
- *       201:
- *         description: Monstre créé avec succès
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 id:
- *                   type: integer
- *                 name:
- *                   type: string
- *                 type:
- *                   type: string
- *       400:
- *         description: Nom ou type manquant
- *       401:
- *         description: JWT manquant ou invalide
- */
-
 module.exports = async (req, res) => {
   const { name, type } = req.body;
 

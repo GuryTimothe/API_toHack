@@ -18,7 +18,7 @@ const openApiSpec = YAML.load(path.join(__dirname, 'docs/open-api.yaml'));
 
 const swaggerOptions = {
     customCss: '.swagger-ui .topbar { display: none }',
-    customSiteTitle: "API Livres - Documentation",
+    customSiteTitle: "API MH - Documentation",
     swaggerOptions: {
         persistAuthorization: true,
         tryItOutEnabled: true
