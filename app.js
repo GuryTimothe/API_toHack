@@ -1,5 +1,7 @@
 const express = require('express');
 const app = express();
+const YAML = require('yamljs');
+const path = require('path');
 const { swaggerUi, swaggerSpec } = require('./config/swagger');
 
 const hostname = '127.0.0.1';
@@ -10,12 +12,23 @@ module.exports = { baseUrl };
 
 app.use(express.json());
 
+const openApiSpec = YAML.load(path.join(__dirname, 'docs/open-api.yaml'));
+
+const swaggerOptions = {
+    customCss: '.swagger-ui .topbar { display: none }',
+    customSiteTitle: "API Livres - Documentation",
+    swaggerOptions: {
+        persistAuthorization: true,
+        tryItOutEnabled: true
+    }
+};
+
 const monsterRoutes = require(`./${version}/monsters/routes`);
 const userRoutes=require(`./${version}/users/routes`)
 app.use('/api' + version, monsterRoutes);
 app.use('/api'+version,userRoutes)
 
-app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(openApiSpec, swaggerOptions));
 
 app.get('/', (req, res) => {
     res.send("Bienvenue sur l'API Monster Hunter");
