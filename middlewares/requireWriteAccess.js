@@ -15,7 +15,7 @@ function requireWriteAccess(req, res, next) {
     const decoded = jwt.verify(token, JWT_SECRET);
 
     if (!decoded.permissions || !decoded.permissions.includes("write")) {
-      return res.status(401).json({ message: "Accès interdit, ntm de là mtn" });
+      return res.status(401).json({ message: "Accès interdit." });
     }
 
     req.user = decoded;
