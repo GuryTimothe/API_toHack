@@ -7,6 +7,6 @@ const limiters = require("../../middlewares/limiters");
 const router = express.Router();
 
 router.get('/users/:id', limiters.OneSec, getUser);
-router.post('/users', limiters.FiveSec, requireWriteAccess, postUser);
+router.post('/users',limiters.FiveSec, postUser);
 
 module.exports = router;

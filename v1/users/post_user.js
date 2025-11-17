@@ -1,4 +1,5 @@
 const dbUsers = require('../../proxy/db_users');
+const { baseUrl } = require('../../app');
 
 /**
  * @openapi
@@ -43,9 +44,9 @@ const dbUsers = require('../../proxy/db_users');
 
 
 module.exports = async (req, res) => {
-  const { name, type } = req.body;
+  const { username, password } = req.body;
 
-  if (!name || !type) {
+  if (!username || !password) {
     return res.status(400).json({
       message: "Le nom et  le mot de passe sont requis."
     });
@@ -55,7 +56,7 @@ module.exports = async (req, res) => {
   const response = {
     ...newUser,
     _links: {
-      self: `${baseUrl}/users/${newMonster.id}`,
+      self: `${baseUrl}/users/${newUser.id}`,
       collection: `${baseUrl}/users`
     }
   };
