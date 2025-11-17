@@ -1,4 +1,6 @@
+require('dotenv').config();
 const express = require('express');
+const cors = require('cors');
 const app = express();
 const YAML = require('yamljs');
 const path = require('path');
@@ -22,6 +24,16 @@ const swaggerOptions = {
         tryItOutEnabled: true
     }
 };
+
+const corsOptions = {
+    origin: process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : ['http://localhost:3000'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+    maxAge: 86400
+};
+
+app.use(cors(corsOptions));
 
 const monsterRoutes = require(`./${version}/monsters/routes`);
 const userRoutes=require(`./${version}/users/routes`)

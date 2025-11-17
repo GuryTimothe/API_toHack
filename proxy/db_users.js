@@ -22,11 +22,13 @@ const dbUsers = {
     },
     
     add: async(user) => {
+        const hashedPassword = await bcrypt.hash(user.password, 12);
         const newUser = {
             id: MOCKED_USER_DB.length
                 ? MOCKED_USER_DB[MOCKED_USER_DB.length - 1].id + 1
                 : 1,
-            ...user,
+            username: user.username,
+            password: hashedPassword,
         };
         MOCKED_USER_DB.push(newUser);
         return newUser;
@@ -39,8 +41,9 @@ const dbUsers = {
             throw new Error("Utilisateur non trouvé");
         }
 
-        if (user.password !== password) {
-            throw new Error("Mot de passe incorrect");
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if (!isPasswordValid) {
+            throw new Error("Identifiants invalides");
         }
 
         const userWithPermissions = {
